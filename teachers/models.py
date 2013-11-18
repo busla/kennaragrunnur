@@ -21,6 +21,13 @@ class Diploma(models.Model):
 
     def __str__(self):
         return self.name
+
+class JobTitle(models.Model):
+    job_id = models.IntegerField('Kóði', unique=True)    
+    name = models.CharField('Starfsheiti', max_length=255)
+
+    def __str__(self):
+        return self.name
          
 class Teacher(models.Model):
     GENDER_CHOICES = (
@@ -40,6 +47,11 @@ class Teacher(models.Model):
     children_adopted = models.IntegerField('Fjöldi kjörbarna', blank=True)
     dob_youngest_child = models.DateField('Fæðingarár yngsta barns', blank=True)
     dob_oldest_child = models.DateField('Fæðingarár elsta barns', blank=True)
+    job_mother = models.ForeignKey(JobTitle, related_name='job_mother')
+    job_father = models.ForeignKey(JobTitle, related_name='job_father')    
+    teaching_started = models.DateField('Upphaf kennslu', blank=True)
+    teaching_ended = models.DateField('Lok kennslu', blank=True)
+    
     
     def __str__(self):
         return self.name
@@ -53,10 +65,36 @@ class School(models.Model):
         return self.name
         
 class Employed(models.Model):
+    JOB_TYPE_CHOICES = (
+        (1, 'Fastráðinn'),
+        (2, 'Stundakennari'),
+    )
+    
+    SCHOOL_TYPE_CHOICES = (
+        (1, 'Fastur skóli'),
+        (2, 'Heimavist'),
+        (3, 'Farskóli'),
+        (4, 'Eftirlitskennsla'),
+    )    
+    
+    BOOLEAN_CHOICES = (
+        (0, 'Nei'),
+        (1, 'Já'),
+    )
+    
     teacher = models.ForeignKey(Teacher)
     School = models.ForeignKey(School)
     year = models.DateField('Starfsár')
-
+    job_type = models.IntegerField('Kennslustaða', choices=JOB_TYPE_CHOICES)
+    extra_job = models.ForeignKey(JobTitle)
+    school_type = models.IntegerField('Tegund skóla', choices=SCHOOL_TYPE_CHOICES)
+    state_junior_school = models.IntegerField('Héraðsgagnfræðikennari', default=0)
+    local_junior_school = models.IntegerField('Gagnfræðikennari', choices=BOOLEAN_CHOICES, default=0)
+    elementary_school = models.IntegerField('Barnaskólakennari', choices=BOOLEAN_CHOICES, default=1)
+    gastronomy_school = models.IntegerField('Matreiðslukennari', choices=BOOLEAN_CHOICES, default=0)
+    has_certificate = models.IntegerField('Hefur kennsluréttindi', choices=BOOLEAN_CHOICES, default=0)
+    
+            
 class Education(models.Model):
     teacher = models.ForeignKey(Teacher)
     year = models.DateField('Próftökuár')
