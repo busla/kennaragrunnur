@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 from django.db import models
+from mptt.models import MPTTModel, TreeForeignKey
 
 class State(models.Model):
     state_id = models.IntegerField('Kóði', unique=True)
@@ -28,7 +28,14 @@ class JobTitle(models.Model):
 
     def __str__(self):
         return self.name
-         
+
+class Genre(MPTTModel):
+    name = models.CharField(max_length=150, unique=True)
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
+
+    def __str__(self):
+        return self.name
+
 class Teacher(models.Model):
     GENDER_CHOICES = (
         (0, 'Karl'),
@@ -39,7 +46,7 @@ class Teacher(models.Model):
     
     name = models.CharField('Nafn', max_length=255)
     gender = models.IntegerField('Kyn', choices=GENDER_CHOICES, default=0)
-    dob = models.DateField('Fæðingarár')
+    dob = TreeForeignKey(Genre, related_name='places')
     deceased = models.DateField('Dánarár')
     birthplace = models.ForeignKey(Area)
     children_related = models.IntegerField('Fjöldi skyldra barna', blank=True)
@@ -69,32 +76,32 @@ class Employed(models.Model):
         (1, 'Fastráðinn'),
         (2, 'Stundakennari'),
     )
-    
+
     SCHOOL_TYPE_CHOICES = (
         (1, 'Fastur skóli'),
         (2, 'Heimavist'),
         (3, 'Farskóli'),
         (4, 'Eftirlitskennsla'),
-    )    
-    
+    )
+
     BOOLEAN_CHOICES = (
         (0, 'Nei'),
         (1, 'Já'),
     )
-    
+
     teacher = models.ForeignKey(Teacher)
     School = models.ForeignKey(School)
     year = models.DateField('Starfsár')
     job_type = models.IntegerField('Kennslustaða', choices=JOB_TYPE_CHOICES)
     extra_job = models.ForeignKey(JobTitle)
     school_type = models.IntegerField('Tegund skóla', choices=SCHOOL_TYPE_CHOICES)
-    state_junior_school = models.IntegerField('Héraðsgagnfræðikennari', default=0)
+    state_junior_school = models.IntegerField('Héraðsgagnfræðikennari', choices=BOOLEAN_CHOICES, default=0)
     local_junior_school = models.IntegerField('Gagnfræðikennari', choices=BOOLEAN_CHOICES, default=0)
     elementary_school = models.IntegerField('Barnaskólakennari', choices=BOOLEAN_CHOICES, default=1)
     gastronomy_school = models.IntegerField('Matreiðslukennari', choices=BOOLEAN_CHOICES, default=0)
     has_certificate = models.IntegerField('Hefur kennsluréttindi', choices=BOOLEAN_CHOICES, default=0)
-    
-            
+
+
 class Education(models.Model):
     teacher = models.ForeignKey(Teacher)
     year = models.DateField('Próftökuár')
@@ -106,9 +113,9 @@ class Marriage(models.Model):
         (3, 'Gift/ur'),
         (4, 'Ekkill/Ekkja'),
         (6, 'Fráskilin/n'),
+        (7, 'Makamissir'),        
     )
-    
+
     teacher = models.ForeignKey(Teacher)
     marriage_status = models.IntegerField('Hjúskapur', choices=MARRIAGE_CHOICES, default=1)
-    year = models.DateField('Hjúskaparár')
-    
+    year = models.DateField('Ár')
