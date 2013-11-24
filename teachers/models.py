@@ -1,17 +1,10 @@
+# -*- coding: utf-8 -*-
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
 class State(models.Model):
     state_id = models.IntegerField('Kóði', unique=True)
     name = models.CharField('Heiti', max_length=255)
-
-    def __str__(self):
-        return self.name
-
-class Area(models.Model):
-    area_id = models.IntegerField('Kóði', unique=True)
-    name = models.CharField('Heiti', max_length=255)
-    state = models.ForeignKey(State)
 
     def __str__(self):
         return self.name
@@ -29,9 +22,9 @@ class JobTitle(models.Model):
     def __str__(self):
         return self.name
 
-class Genre(MPTTModel):
+class State(MPTTModel):
     name = models.CharField(max_length=150, unique=True)
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='county')
 
     def __str__(self):
         return self.name
@@ -46,9 +39,9 @@ class Teacher(models.Model):
     
     name = models.CharField('Nafn', max_length=255)
     gender = models.IntegerField('Kyn', choices=GENDER_CHOICES, default=0)
-    dob = TreeForeignKey(Genre, related_name='places')
+    dob = models.DateField('Fæðingarár', blank=True)
     deceased = models.DateField('Dánarár')
-    birthplace = models.ForeignKey(Area)
+    birthplace = TreeForeignKey(State, related_name='birthplace')
     children_related = models.IntegerField('Fjöldi skyldra barna', blank=True)
     children_foster = models.IntegerField('Fjöldi fósturbarna', blank=True)
     children_adopted = models.IntegerField('Fjöldi kjörbarna', blank=True)
@@ -65,7 +58,7 @@ class Teacher(models.Model):
 
 class School(models.Model):
     name = models.CharField('Heiti', max_length=255)
-    area = models.ForeignKey(Area)
+    area = TreeForeignKey(State, related_name='area')
     teacher = models.ManyToManyField(Teacher, through='Employed')
 
     def __str__(self):
