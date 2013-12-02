@@ -39,6 +39,8 @@ INSTALLED_APPS = (
     'teachers',
     'south',
     'mptt',
+    'autocomplete_light',
+    'selectable',
 )
 
 MIDDLEWARE_CLASSES = (

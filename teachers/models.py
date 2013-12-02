@@ -2,31 +2,24 @@
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
-class State(models.Model):
-    state_id = models.IntegerField('Kóði', unique=True)
-    name = models.CharField('Heiti', max_length=255)
-
-    def __str__(self):
-        return self.name
-
 class Diploma(models.Model):
     name = models.CharField('Prófgráða', max_length=255)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 class JobTitle(models.Model):
     job_id = models.IntegerField('Kóði', unique=True)    
     name = models.CharField('Starfsheiti', max_length=255)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 class State(MPTTModel):
     name = models.CharField(max_length=150, unique=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='county')
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 class Teacher(models.Model):
@@ -39,21 +32,21 @@ class Teacher(models.Model):
     
     name = models.CharField('Nafn', max_length=255)
     gender = models.IntegerField('Kyn', choices=GENDER_CHOICES, default=0)
-    dob = models.DateField('Fæðingarár', blank=True)
-    deceased = models.DateField('Dánarár')
-    birthplace = TreeForeignKey(State, related_name='birthplace')
-    children_related = models.IntegerField('Fjöldi skyldra barna', blank=True)
-    children_foster = models.IntegerField('Fjöldi fósturbarna', blank=True)
-    children_adopted = models.IntegerField('Fjöldi kjörbarna', blank=True)
-    dob_youngest_child = models.DateField('Fæðingarár yngsta barns', blank=True)
-    dob_oldest_child = models.DateField('Fæðingarár elsta barns', blank=True)
-    job_mother = models.ForeignKey(JobTitle, related_name='job_mother')
-    job_father = models.ForeignKey(JobTitle, related_name='job_father')    
-    teaching_started = models.DateField('Upphaf kennslu', blank=True)
-    teaching_ended = models.DateField('Lok kennslu', blank=True)
+    dob = models.DateField('Fæðingarár', null=True, blank=True)
+    deceased = models.DateField('Dánarár', null=True, blank=True)
+    birthplace = TreeForeignKey(State, related_name='birthplace', null=True, blank=True, )
+    children_related = models.IntegerField('Fjöldi skyldra barna', null=True, blank=True)
+    children_foster = models.IntegerField('Fjöldi fósturbarna', null=True, blank=True)
+    children_adopted = models.IntegerField('Fjöldi kjörbarna', null=True, blank=True)
+    dob_youngest_child = models.DateField('Fæðingarár yngsta barns', null=True, blank=True)
+    dob_oldest_child = models.DateField('Fæðingarár elsta barns', null=True, blank=True)
+    job_mother = models.ForeignKey(JobTitle, related_name='job_mother', null=True, blank=True)
+    job_father = models.ForeignKey(JobTitle, related_name='job_father', null=True, blank=True)    
+    teaching_started = models.DateField('Upphaf kennslu', null=True, blank=True)
+    teaching_ended = models.DateField('Lok kennslu', null=True, blank=True)
     
     
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 class School(models.Model):
@@ -61,7 +54,7 @@ class School(models.Model):
     area = TreeForeignKey(State, related_name='area')
     teacher = models.ManyToManyField(Teacher, through='Employed')
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
         
 class Employed(models.Model):
@@ -83,7 +76,7 @@ class Employed(models.Model):
     )
 
     teacher = models.ForeignKey(Teacher)
-    School = models.ForeignKey(School)
+    school = models.ForeignKey(School)
     year = models.DateField('Starfsár')
     job_type = models.IntegerField('Kennslustaða', choices=JOB_TYPE_CHOICES)
     extra_job = models.ForeignKey(JobTitle)

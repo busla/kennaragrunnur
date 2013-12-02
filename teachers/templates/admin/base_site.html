@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block title %}{{ title }} | {% trans 'Icelandic teacher database administration' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">{% trans 'Teacher DB admin' %}</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrahead %} 
+  {% load selectable_tags %} 
+  {% include_ui_theme %} 
+  {% include_jquery_libs %}
+{% endblock %}
